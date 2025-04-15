@@ -2,22 +2,648 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Strategy Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Strategy AI Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial; max-width: 700px; margin: auto; padding-top: 50px; }
-        textarea { width: 100%; height: 100px; }
-        .reply { background: #f5f5f5; padding: 15px; margin-top: 20px; white-space: pre-wrap; border-left: 4px solid #2196F3; }
+        :root {
+            --primary: #2196f3;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --background: #0d1117;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --text: #ffffff;
+            --text-secondary: #8b949e;
+            --border: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .platform-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .workspace {
+            flex: 1;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            overflow: auto;
+        }
+
+        .strategy-input {
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        .strategy-output {
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            max-height: calc(100vh - 8rem);
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-panel {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .input-field {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            min-height: 100px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--surface-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-button:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .action-button i {
+            font-size: 1.1rem;
+        }
+
+        .strategy-card {
+            background: var(--surface);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .strategy-header {
+            background: rgba(33, 150, 243, 0.1);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .strategy-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .strategy-type {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .strategy-body {
+            padding: 1rem;
+        }
+
+        .strategy-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text);
+            white-space: pre-wrap;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .strategy-leg {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leg-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .leg-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .leg-value {
+            font-weight: 500;
+        }
+
+        .risk-profile {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--surface-light);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .platform-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .strategy-title {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .strategy-detail {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .strategy-leg {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(33, 150, 243, 0.05);
+        }
+
+        .strategy-leg:hover {
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .leg-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .leg-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .leg-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .risk-profile {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .strategy-context {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .strategy-leg {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(33, 150, 243, 0.05);
+            transition: all 0.2s;
+        }
+
+        .strategy-leg:hover {
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .strategy-leg .leg-value {
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .strategy-detail {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .strategy-body {
+            padding: 0 !important;
+        }
+
+        .strategy-intro {
+            padding: 1rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-style: italic;
+        }
+
+        .strategy-title {
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .legs-header {
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .strategy-leg {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            transition: all 0.2s;
+        }
+
+        .strategy-leg:hover {
+            background: var(--surface-light);
+        }
+
+        .leg-number {
+            color: var(--primary);
+            font-weight: 600;
+            min-width: 30px;
+        }
+
+        .leg-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .leg-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .leg-label {
+            color: var(--text-secondary);
+            min-width: 60px;
+        }
+
+        .leg-value {
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .strategy-body {
+            background: var(--surface-light);
+        }
+
+        .config-output {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .config-output .buy {
+            color: #4caf50;
+            font-weight: 500;
+        }
+
+        .config-output .sell {
+            color: #f44336;
+            font-weight: 500;
+        }
+
+        .config-output .strike {
+            color: #2196f3;
+            font-weight: 500;
+        }
+
+        .config-output .type {
+            color: #ff9800;
+            font-weight: 500;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: var(--surface-light);
+            border-radius: 6px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .question-context {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-left: 2px solid var(--primary);
+        }
     </style>
 </head>
 <body>
-    <h1>Options Strategy Assistant</h1>
-    <form method="POST">
-        <textarea name="message" placeholder="Ask me to generate a strategy config..."></textarea>
-        <br><br>
-        <button type="submit">Submit</button>
-    </form>
-    {% if reply %}
-        <div class="reply">{{ reply }}</div>
-    {% endif %}
+    <div class="platform-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                Options AI
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1 class="section-title">
+                    <i class="fas fa-robot"></i>
+                    Strategy Generator
+                </h1>
+            </header>
+
+            <div class="workspace">
+                <div class="strategy-input">
+                    <h2 class="section-title">
+                        <i class="fas fa-pencil-alt"></i>
+                        Input
+                    </h2>
+                    <form id="strategy-form" method="POST" action="/">
+                        <div class="mode-switch">
+                            <button type="button" class="mode-btn active" data-mode="generate">
+                                <i class="fas fa-cog"></i>
+                                Generate Config
+                            </button>
+                            <button type="button" class="mode-btn" data-mode="question">
+                                <i class="fas fa-question-circle"></i>
+                                Ask Question
+                            </button>
+                        </div>
+                        <div class="control-panel">
+                            <div class="input-group">
+                                <label id="input-label">Strategy Description</label>
+                                <textarea 
+                                    class="input-field"
+                                    name="message"
+                                    placeholder="Describe the options strategy you want to generate..."
+                                    required
+                                ></textarea>
+                            </div>
+                        </div>
+                        <input type="hidden" name="mode" id="mode-input" value="generate">
+                        <div class="button-group">
+                            <button type="submit" class="action-button" id="generate-btn">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                                <span>Generate Strategy</span>
+                            </button>
+                            <button type="button" class="action-button" id="clear-btn">
+                                <i class="fas fa-trash"></i>
+                                Clear
+                            </button>
+                        </div>
+                        <div class="loading" id="loading">
+                            <div class="loading-spinner"></div>
+                            <span>Processing...</span>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="strategy-output">
+                    <h2 class="section-title">
+                        <i class="fas fa-code"></i>
+                        Output
+                    </h2>
+                    {% if reply %}
+                        <div class="strategy-card">
+                            <div class="strategy-body">
+                                {% if mode == 'generate' %}
+                                    <pre class="config-output">{% for line in reply.split('\n') %}{% if line.strip() %}{% if 'buy' in line.lower() %}{{ line | replace('buy', '<span class="buy">buy</span>') | replace('Buy', '<span class="buy">Buy</span>') }}
+{% elif 'sell' in line.lower() %}{{ line | replace('sell', '<span class="sell">sell</span>') | replace('Sell', '<span class="sell">Sell</span>') }}
+{% elif 'strike:' in line.lower() %}{{ line | replace('strike:', '<span class="strike">strike:</span>') }}
+{% elif 'type:' in line.lower() %}{{ line | replace('type:', '<span class="type">type:</span>') }}
+{% else %}{{ line }}
+{% endif %}{% endif %}{% endfor %}</pre>
+                                {% else %}
+                                    {% if context %}
+                                        <div class="question-context">
+                                            Context: {{ context }}
+                                        </div>
+                                    {% endif %}
+                                    <pre class="strategy-text">{{ reply }}</pre>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const form = document.getElementById('strategy-form');
+        const generateBtn = document.getElementById('generate-btn');
+        const loading = document.getElementById('loading');
+        const modeInput = document.getElementById('mode-input');
+        const inputLabel = document.getElementById('input-label');
+        const textarea = document.querySelector('textarea');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+
+        // Mode switching
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const mode = this.dataset.mode;
+                modeBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                modeInput.value = mode;
+                
+                if (mode === 'generate') {
+                    inputLabel.textContent = 'Strategy Description';
+                    textarea.placeholder = 'Describe the options strategy you want to generate...';
+                    generateBtn.querySelector('span').textContent = 'Generate Strategy';
+                } else {
+                    inputLabel.textContent = 'Your Question';
+                    textarea.placeholder = 'Ask a question about the current strategy...';
+                    generateBtn.querySelector('span').textContent = 'Ask Question';
+                }
+            });
+        });
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            loading.classList.add('active');
+            generateBtn.disabled = true;
+        });
+
+        // Clear functionality
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            textarea.value = '';
+            textarea.style.height = 'auto';
+            
+            const output = document.querySelector('.strategy-output');
+            const existingCard = output.querySelector('.strategy-card');
+            if (existingCard) {
+                existingCard.remove();
+            }
+        });
+
+        // Auto-resize textarea
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    </script>
 </body>
 </html>
